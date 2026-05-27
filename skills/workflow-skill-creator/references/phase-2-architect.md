@@ -8,6 +8,8 @@ Say: "Starting Phase 2: Architect. I'll design state contracts, execution models
 
 ## User Questions
 
+Ask via AskUserQuestion (if available); otherwise present the options as a numbered prose list.
+
 1. **Revision tolerance** (single-select)
    - Tight (1/phase) / Standard (2/phase) / Generous (3 for high-stakes, 1-2 for others) / Custom
 
@@ -81,7 +83,7 @@ Document the decision AND rationale for each phase.
 For each gate:
 
 - **Review framing**: Derive from the gate focus captured in the scope brief. The gate message must tell the user what specifically to evaluate — not "review this" but "Check [gate focus from scope brief]. Verify [specific criteria]."
-- **Interactive decision**: ask_user_input with options: Approved / Needs refinement / Major rework / Reject
+- **Interactive decision**: AskUserQuestion (if available) with options: Approved / Needs refinement / Major rework / Reject
 - **Skip handling**: What assumptions replace the output if skipped. Mark phases that cannot be skipped.
 - **Enforcement**: All four prohibitions (every generated gate MUST include all four):
   1. STOP. Wait for explicit user approval before ANY next action.
@@ -99,7 +101,7 @@ Use the workflow frequency from the scope brief to calibrate cost-sensitive deci
 | Monthly/ad-hoc | Standard or Heavy | Standard or Generous | sonnet or opus |
 | One-time | Heavy (15+ searches) | Generous (3 for key phases) | opus for synthesis |
 
-Override user's depth/revision preferences if they conflict with frequency economics, but explain why. Example: "You selected Heavy depth for a daily workflow — this would consume significant tokens per run. Recommend Light depth for daily frequency. Proceed with Heavy anyway?"
+Override user's depth/revision preferences if they conflict with frequency economics, but explain why, then offer the choice via AskUserQuestion (if available). Example: explain "You selected Heavy depth for a daily workflow — this would consume significant tokens per run," then ask with options "Proceed with Heavy" / "Switch to Light (recommended)".
 
 ### Step 5: Execution Depth Contracts
 For each phase flagged as needing deep research:
@@ -213,7 +215,7 @@ Orchestrator Frontmatter:
 - [ ] Description draft ≤1024 chars with 5+ triggers
 
 ## Gate
-Present the architecture spec. Use ask_user_input:
+Present the architecture spec. Use AskUserQuestion (if available):
   question: "How does this architecture look?"
   options: "Approved — proceed to Build" / "Needs refinement" / "Needs major rework"
 

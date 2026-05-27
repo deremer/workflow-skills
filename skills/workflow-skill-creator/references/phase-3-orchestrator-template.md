@@ -62,7 +62,7 @@ Next phase: [name]
 - NEVER combine phases. Each phase is a distinct unit of work.
 - NEVER read ahead into the next phase reference file.
 - If user asks to skip: name the phase, list missing outputs, state
-  replacement assumptions, confirm with ask_user_input.
+  replacement assumptions, confirm with AskUserQuestion (if available).
 - Maximum [N] revision cycles per phase [from arch spec].
 - Revision procedure: user provides feedback → revise output →
   re-validate against phase checklist → re-present at gate.
@@ -71,7 +71,7 @@ Next phase: [name]
 - If context grows long, summarize completed phases before continuing.
 
 ## Resuming an Interrupted Workflow
-1. Ask: "Resume from last checkpoint?"
+1. Ask via AskUserQuestion (if available): "Resume from last checkpoint" / "Start over from Phase 1". If unavailable, ask in prose.
 2. Read most recent WORKFLOW STATE block.
 3. Confirm state with user.
 4. Resume next phase. Do NOT re-read completed phase files.

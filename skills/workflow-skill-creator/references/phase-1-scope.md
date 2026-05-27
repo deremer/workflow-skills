@@ -12,7 +12,7 @@ Before asking questions, scan the triggering message and conversation history. L
 
 ## User Questions
 
-RULE: Use ask_user_input for all bounded questions. Include "Other (I'll explain)" escape hatches. Prefer multi-select over single-select when users may have multiple preferences. Batch into 1-3 prompts with up to 4 options each. Prose only for genuinely unpredictable answers.
+RULE: Use AskUserQuestion for all bounded questions when it is available. It adds an "Other" free-text choice automatically — do not add a manual "Other" option. Prefer multi-select over single-select when users may have multiple preferences. Batch into 1-3 questions per call, up to 4 options each. When AskUserQuestion is unavailable, present the same options as a numbered prose list. Prose only for genuinely unpredictable answers.
 
 ### Batch 1 — Purpose and Pattern
 
@@ -21,7 +21,6 @@ RULE: Use ask_user_input for all bounded questions. Include "Other (I'll explain
    - Content piece (case study, blog post, thought leadership, proposal)
    - Technical artifact (migration plan, architecture doc, config, code)
    - Process document (playbook, SOP, checklist, meeting prep)
-   - Other (I'll explain)
 
 2. **Which pattern?** (single-select)
    - Research → Synthesize → Produce → Distribute (Pattern A)
@@ -29,7 +28,6 @@ RULE: Use ask_user_input for all bounded questions. Include "Other (I'll explain
    - Analyze → Plan → Execute → Verify (Pattern C)
    - Triage → Route → Specialize (Pattern D)
    - Parallel Gather → Merge → Output (Pattern E)
-   - Other (I'll describe)
 
 3. **How many phases?** (single-select)
    - 3 / 4 / 5 / 6+ (beyond 7, recommend decomposing into sub-workflows)
@@ -59,7 +57,7 @@ RULE: Use ask_user_input for all bounded questions. Include "Other (I'll explain
    - Background only — auto-triggered by Claude, hidden from slash menu (user-invocable: false)
 
 3. **Cross-cutting skills to reference?** (multi-select)
-   - Brand guidelines / Writing style / Personal voice / Data gathering standards / None / Other
+   - Brand guidelines / Writing style / Personal voice / Data gathering standards / None
 
 4. **How often will this run?** (single-select)
    - Daily or near-daily / Weekly / Monthly or ad-hoc / One-time
@@ -135,7 +133,7 @@ Constraints: [platform-specific limitations, other]
 - [ ] Workflow actually warrants multiple gated phases
 
 ## Gate
-Present the scope brief. Use ask_user_input:
+Present the scope brief. Use AskUserQuestion (if available):
   question: "How does this scope brief look?"
   options: "Approved — proceed to Architecture" / "Needs refinement" / "Needs major rework" / "Should be a single skill instead"
 

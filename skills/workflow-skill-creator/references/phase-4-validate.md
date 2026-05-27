@@ -57,12 +57,12 @@ Verify each item by opening the relevant file and checking. Mark PASS or FAIL.
 - [ ] Validation checklist includes depth contract verification items
 
 **Interactive Design:**
-- [ ] All bounded questions use ask_user_input
-- [ ] Questions batched (1-3 prompts, up to 4 options each)
+- [ ] All bounded questions use AskUserQuestion (if available), with a numbered-prose fallback for when it is unavailable
+- [ ] Questions batched (1-3 per call, up to 4 options each)
 - [ ] Multi-select preferred over single-select where appropriate
-- [ ] "Other (I'll explain)" escape hatch on every question
+- [ ] No manual "Other" option (AskUserQuestion provides one automatically)
 - [ ] Questions front-loaded before work begins in each phase
-- [ ] Gate decisions use ask_user_input with Approved/Refine/Rework/Reject options
+- [ ] Gate decisions use AskUserQuestion (if available) with Approved/Refine/Rework/Reject options
 
 **Parameterization (if applicable):**
 - [ ] `argument-hint:` in commented-out orchestrator frontmatter
@@ -184,8 +184,8 @@ Run these 9 tests against the deployed skill:
 
 7. INTERACTIVE GATE TEST
    Review every question asked during the workflow. Did all bounded
-   questions use ask_user_input? Were any prose questions asked
-   where structured options would have worked?
+   questions use AskUserQuestion (where available)? Were any prose
+   questions asked where structured options would have worked?
 
 8. CROSS-PLATFORM TEST
    Run the workflow on each target platform. On platforms without
@@ -207,7 +207,7 @@ Run these 9 tests against the deployed skill:
 - Drops the workflow state block at later gates (especially gates 3+)
 - Ignores cross-cutting skill references under context pressure
 - Satisfies research phases with 2-3 surface searches instead of depth contract minimums
-- Asks prose questions where ask_user_input should be used
+- Asks prose questions where AskUserQuestion should be used
 - Drops Decision rationale from workflow state blocks
 - Subagent output contracts violated (returns raw data dump instead of structured brief)
 
@@ -273,7 +273,7 @@ On Claude Code: Create a zip of the skill folder in the current working director
 
 ## Gate
 Present validation report.
-ask_user_input:
+AskUserQuestion (if available):
   question: "Validation complete. Ready to deploy?"
   options: "Approved — deliver" / "Needs fixes" / "Additional testing" / "Revise Build phase"
 

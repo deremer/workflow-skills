@@ -73,13 +73,13 @@ Next phase: [name]
 - NEVER skip a gate. Wait for explicit user approval.
 - NEVER combine phases.
 - NEVER read ahead into the next phase reference file.
-- If the user asks to skip a phase: name what's skipped, list missing outputs, state replacement assumptions, confirm with ask_user_input.
+- If the user asks to skip a phase: name what's skipped, list missing outputs, state replacement assumptions, confirm with AskUserQuestion (if available).
 - Revision limits: 2 cycles for Scope/Architect, 3 for Build, 1 for Validate.
 - If context grows long, summarize completed phases before continuing.
 - If the user's triggering message contains workflow details, extract in Phase 1 — confirm, don't re-ask.
 
 ## Resuming an Interrupted Workflow
-1. Ask: "Resume from the last checkpoint?"
+1. Ask via AskUserQuestion (if available): "Resume from the last checkpoint" / "Start over from Phase 1". If unavailable, ask in prose.
 2. Read the most recent WORKFLOW STATE block.
 3. Confirm state with the user.
 4. Resume from the next phase. Do NOT re-read completed phase files.

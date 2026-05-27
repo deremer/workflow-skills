@@ -17,16 +17,17 @@ Say: "Starting Phase [N]: [Name]. [One sentence.]"
   user to provide [the parameter]."
 
 ## User Questions
-RULE: ask_user_input for all bounded questions. Prefer multi-select
-over single-select. Batch into 1-3 prompts, up to 4 options each.
-Include "Other (I'll explain)" escape hatch on every question.
-Prose only for genuinely unpredictable answers. If prior output or
-triggering message already answers a question, confirm rather than
-re-ask.
+RULE: Use AskUserQuestion for all bounded questions when it is
+available. It adds an "Other" free-text choice automatically — do not
+add a manual "Other" option. Prefer multi-select over single-select.
+Batch into 1-3 questions per call, up to 4 options each. When
+AskUserQuestion is unavailable, present the same options as a numbered
+prose list. Prose only for genuinely unpredictable answers. If prior
+output or triggering message already answers a question, confirm rather
+than re-ask.
 
 1. **[Question]** (single/multi-select)
    - Options...
-   - Other (I'll explain)
 
 ## Execution Depth Contract [only if arch spec requires for this phase]
 ### Search Depth
@@ -99,7 +100,7 @@ phase with this version?"
 
 ## Gate
 Present output. Say: "[Gate framing derived from gate focus in arch spec]"
-ask_user_input:
+AskUserQuestion (if available):
   question: "[review framing — derived from gate focus]"
   type: single_select
   options:

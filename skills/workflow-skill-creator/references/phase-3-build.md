@@ -131,7 +131,7 @@ Based on the pattern from the arch spec, apply these constraints to the generate
 
 **Pattern B (Interview → Draft → Review → Refine):**
 
-*Interview phase:* ALL questions with predictable answer sets MUST use ask_user_input. Minimize open-ended questions — they produce vague answers that weaken the draft. The output contract should be a structured set of decisions and content inputs, not a transcript.
+*Interview phase:* ALL questions with predictable answer sets MUST use AskUserQuestion (if available). Minimize open-ended questions — they produce vague answers that weaken the draft. The output contract should be a structured set of decisions and content inputs, not a transcript.
 
 *Review phase:* MUST include a self-review step before presenting to the user. Process steps: "Review the draft against [rubric/criteria]. Identify weaknesses. Revise before presenting." The output is the revised draft, not the first draft.
 
@@ -139,11 +139,11 @@ Based on the pattern from the arch spec, apply these constraints to the generate
 
 *Plan phase:* Output contract MUST specify a numbered checklist of actions. Not a narrative plan — a sequenced, checkable list.
 
-*Execute phase:* Process steps work through the checklist sequentially. For high-risk items (destructive operations, external communications, financial commitments), add mini-gates: "Before executing [high-risk item]: present the action and ask for confirmation using ask_user_input."
+*Execute phase:* Process steps work through the checklist sequentially. For high-risk items (destructive operations, external communications, financial commitments), add mini-gates: "Before executing [high-risk item]: present the action and ask for confirmation using AskUserQuestion (if available)."
 
 **Pattern D (Triage → Route → Specialize):**
 
-*Triage phase:* Asks classification questions via ask_user_input, then loads ONLY the relevant specialist reference file. Other specialist files are NEVER read. Each specialist path is a separate reference file under `references/`.
+*Triage phase:* Asks classification questions via AskUserQuestion (if available), then loads ONLY the relevant specialist reference file. Other specialist files are NEVER read. Each specialist path is a separate reference file under `references/`.
 
 *Specialist phases:* Each specialist file is self-contained — it does not reference other specialist files or assume the triage phase's working context.
 
@@ -231,7 +231,7 @@ For each check, follow the verification procedure. Fix issues before presenting.
 
 **Shallow Research:** Open each phase with a depth contract. Count the discrete search actions in the ## Process steps. Are there enough to meet the depth contract minimums? If the contract says 8+ searches but the process describes 3 search steps: add more search steps or describe an iterative loop that will produce 8+ searches.
 
-**Prose Questions:** Open each phase file. Are all bounded questions formatted for ask_user_input? Search for question marks in the Process section — any that have predictable answers should be ask_user_input instead.
+**Prose Questions:** Open each phase file. Are all bounded questions formatted for AskUserQuestion (with a numbered-prose fallback for when it is unavailable)? Search for question marks in the Process section — any that have predictable answers should use AskUserQuestion instead.
 
 **Unverified Skills:** Open each phase that references cross-cutting skills. Is the skill name in BOTH the Process steps (with concrete instructions) AND the Validation Checklist (with observable criteria)? If only in one: add to the other.
 
@@ -276,7 +276,7 @@ Count lines in each generated file. If on Claude.ai (no filesystem), count lines
 - [ ] Every phase with 3+ process steps has a progress checklist in the Process section
 - [ ] Every phase has a validation loop (not one-pass check) before the gate
 - [ ] References one level deep
-- [ ] All bounded questions use ask_user_input with batching rules
+- [ ] All bounded questions use AskUserQuestion (if available) with batching rules and a numbered-prose fallback; no manual "Other" option
 - [ ] Cross-cutting skills have concrete instructions AND observable checklist criteria
 - [ ] If parameterized: $ARGUMENTS flows through orchestrator and Phase 1 input contract
 - [ ] If ultrathink phases: keyword present in Process section
@@ -288,7 +288,7 @@ Count lines in each generated file. If on Claude.ai (no filesystem), count lines
 
 ## Gate
 Present file tree, line counts, anti-pattern audit, contract chain verification, description verification, and full content of each generated file.
-ask_user_input:
+AskUserQuestion (if available):
   question: "How do the generated files look?"
   options: "Approved — proceed to Validate" / "Needs refinement" / "Major rework"
 
