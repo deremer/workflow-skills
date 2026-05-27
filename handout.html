@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Workflow Skill Creator — Handout</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #1a1a2e;
+    --muted: #55556b;
+    --accent: #5b4bd6;
+    --accent-soft: #eeebfb;
+    --pass: #1f9d63;
+    --rule: #e2e0ee;
+    --bg-soft: #f7f6fc;
+  }
+
+  html, body {
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    padding: 0.62in 0.62in 0.5in;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- header ---------- */
+  .head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 2.5px solid var(--accent);
+    padding-bottom: 10px;
+  }
+  .kicker {
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  h1 {
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 4px 0 6px;
+  }
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 5.4in;
+    line-height: 1.4;
+  }
+  .badge {
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .badge .cmd {
+    display: inline-block;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 9px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ---------- body layout ---------- */
+  .cols {
+    display: flex;
+    gap: 26px;
+    margin-top: 20px;
+    flex: 1;
+  }
+  .col-main { flex: 1.42; }
+  .col-side { flex: 1; }
+
+  section { margin-bottom: 19px; }
+  h2 {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h2::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  p { font-size: 12px; line-height: 1.5; color: var(--ink); }
+  p + p { margin-top: 6px; }
+  .muted { color: var(--muted); }
+
+  /* phase strip */
+  .phases {
+    display: flex;
+    gap: 7px;
+    margin-top: 12px;
+  }
+  .phase {
+    flex: 1;
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 9px 8px 10px;
+    position: relative;
+  }
+  .phase .n {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .phase .t {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 2px 0 3px;
+  }
+  .phase .d {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.36;
+  }
+  .gatebar {
+    margin-top: 10px;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 8px 11px;
+    line-height: 1.45;
+  }
+  .gatebar b { color: var(--accent); }
+
+  /* examples */
+  .ex { margin-top: 4px; }
+  .ex-item {
+    display: flex;
+    gap: 11px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ex-item .et { font-size: 12px; font-weight: 700; }
+  .ex-item .ed { font-size: 10px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+
+  /* install */
+  pre {
+    background: #1a1a2e;
+    color: #e8e6f6;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 10px;
+    line-height: 1.75;
+    padding: 13px 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    white-space: pre-wrap;
+  }
+  pre .c { color: #8f86d6; }
+  pre .p { color: #6fd3a0; }
+
+  /* takeaways */
+  ul.take { list-style: none; }
+  ul.take li {
+    font-size: 11px;
+    line-height: 1.4;
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 9px;
+  }
+  ul.take li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 5px;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  ul.take li b { color: var(--ink); }
+  ul.take li span { color: var(--muted); }
+
+  /* when to use box */
+  .usebox {
+    background: var(--bg-soft);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 7px;
+    padding: 12px 14px;
+  }
+  .usebox p { font-size: 10.5px; line-height: 1.45; color: var(--muted); }
+  .usebox .test {
+    font-size: 10.5px;
+    margin-top: 7px;
+    color: var(--ink);
+  }
+  .usebox .test b { color: var(--accent); }
+
+  /* footer */
+  .foot {
+    margin-top: auto;
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .foot .more { font-size: 11px; }
+  .foot .more .lk { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .foot .more .lab { font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 3px; }
+  .foot .right { font-size: 9px; color: var(--muted); text-align: right; line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="kicker">Claude Code Plugin · Agent Skills standard</div>
+      <h1>Workflow Skill Creator</h1>
+      <div class="tagline">Turn a repeatable, multi-step process into a structured agent workflow that stops for human review, hands work between phases on explicit contracts, and checks itself before it asks you to look.</div>
+    </div>
+    <div class="badge">
+      <span class="cmd">/workflow-skill-creator</span><br/>
+      <div style="margin-top:6px">MIT · v0.1.0<br/>Claude Code + Claude.ai</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <!-- ===== MAIN COLUMN ===== -->
+    <div class="col-main">
+
+      <section>
+        <h2>What it is</h2>
+        <p>A meta-skill that builds other skills. It runs a four-phase, human-gated pipeline that interviews you about your process, designs the architecture, generates every file, and validates the result against the open standard. The work stops at a gate between each phase and waits for your explicit approval before moving on, so you stay in control as the design takes shape.</p>
+        <div class="phases">
+          <div class="phase"><div class="n">01</div><div class="t">Scope</div><div class="d">Interview for intent, phases, platforms, constraints.</div></div>
+          <div class="phase"><div class="n">02</div><div class="t">Architect</div><div class="d">Design state contracts, gates, execution models.</div></div>
+          <div class="phase"><div class="n">03</div><div class="t">Build</div><div class="d">Generate the orchestrator and all phase files.</div></div>
+          <div class="phase"><div class="n">04</div><div class="t">Validate</div><div class="d">Run the checklist, test, package for delivery.</div></div>
+        </div>
+        <div class="gatebar"><b>Gate between every phase.</b> Never skipped, never optional. The skill presents what it built, names what you should judge, and waits.</div>
+      </section>
+
+      <section>
+        <h2>What you can build with it — 3 ideas</h2>
+        <div class="ex">
+          <div class="ex-item">
+            <div class="ex-num">1</div>
+            <div>
+              <div class="et">Market research → brief</div>
+              <div class="ed">Research with a depth floor, synthesize findings tagged fact / projection / opinion, then format. Review sources before any draft.</div>
+            </div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-num">2</div>
+            <div>
+              <div class="et">Blog post production line</div>
+              <div class="ed">Outline, draft, edit for tone, then brand-check. A gate after each so you approve structure before prose, prose before publish.</div>
+            </div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-num">3</div>
+            <div>
+              <div class="et">Incident postmortem builder</div>
+              <div class="ed">Gather timeline, root-cause analysis, remediation plan, write-up. Each phase hands a named artifact to the next on a verified contract.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Install &amp; run</h2>
+        <pre><span class="c"># add the marketplace, then install the plugin</span>
+/plugin marketplace add deremer/workflow-skills
+/plugin install workflow-skill-creator@workflow-skills
+
+<span class="c"># run it, or just describe a 3+ step process</span>
+<span class="p">/workflow-skill-creator</span></pre>
+      </section>
+
+    </div>
+
+    <!-- ===== SIDE COLUMN ===== -->
+    <div class="col-side">
+
+      <section>
+        <h2>When it earns its keep</h2>
+        <div class="usebox">
+          <p>Use a workflow only when all four hold at once:</p>
+          <div class="test"><b>3+</b> distinct phases producing different artifacts</div>
+          <div class="test"><b>·</b> a human needs to review between phases</div>
+          <div class="test"><b>·</b> each phase depends on the one before</div>
+          <div class="test"><b>·</b> the process repeats often enough to encode</div>
+          <p style="margin-top:6px">If a single prompt would do, the skill tells you to use that instead.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Key takeaways</h2>
+        <ul class="take">
+          <li><b>Front-load planning.</b> <span>The cheapest place to fix a mistake is before any work starts.</span></li>
+          <li><b>Gate autonomy with review.</b> <span>A human checkpoint wherever being wrong is costly to undo.</span></li>
+          <li><b>Make handoffs contracts.</b> <span>Name the artifact, its format, and its structure — not "the output from before."</span></li>
+          <li><b>Bound every loop.</b> <span>A set revision and research limit beats "refine until it's good."</span></li>
+          <li><b>Verify before done.</b> <span>A self-check that runs until green beats a confident claim.</span></li>
+          <li><b>Capture the why.</b> <span>State blocks carry decisions so a resumed run inherits them.</span></li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="more">
+      <span class="lab">Learn more — the full guide</span>
+      <a class="lk" href="https://deremer.github.io/workflow-skills/learning-site/">deremer.github.io/workflow-skills/learning-site</a>
+    </div>
+    <div class="right">
+      <b>The Anatomy of a Workflow Skill</b><br/>
+      Gates · contracts · validation loops · depth contracts<br/>
+      github.com/deremer/workflow-skills
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
