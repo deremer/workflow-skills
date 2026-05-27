@@ -1,0 +1,24 @@
+{
+  "name": "workflow-skills",
+  "owner": {
+    "name": "David DeRemer",
+    "url": "https://github.com/deremer"
+  },
+  "metadata": {
+    "description": "Skills for working with workflow skills in Claude Code.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "workflow-skill-creator",
+      "source": "./",
+      "description": "Creates multi-phase workflow skills with human-gated checkpoints, state contracts, and execution depth contracts.",
+      "keywords": [
+        "skills",
+        "workflow",
+        "meta",
+        "plugin-development"
+      ]
+    }
+  ]
+}

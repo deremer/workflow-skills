@@ -1,0 +1,18 @@
+{
+  "name": "workflow-skill-creator",
+  "version": "0.1.0",
+  "description": "Creates multi-phase workflow skills with human-gated checkpoints, state contracts, and execution depth contracts.",
+  "author": {
+    "name": "David DeRemer",
+    "url": "https://github.com/deremer"
+  },
+  "homepage": "https://github.com/deremer/workflow-skills",
+  "repository": "https://github.com/deremer/workflow-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "workflow",
+    "meta",
+    "plugin-development"
+  ]
+}

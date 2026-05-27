@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Logs and temp
+*.log
+*.tmp
+
+# Packaged skill archives produced by the validate phase
+*.zip
