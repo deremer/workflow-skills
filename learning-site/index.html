@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Anatomy of a Workflow Skill</title>
+  <meta name="description" content="A learning guide to building multi-phase agentic workflows: gates, state contracts, validation loops, and the design lineage behind the workflow-skill-creator plugin." />
+  <script>
+    /* Set theme before paint to avoid a flash for dark-mode users. */
+    (function () {
+      try {
+        var t = localStorage.getItem('wsk-theme');
+        if (!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+    </svg>
+    <span class="label-dark">Dark</span>
+    <span class="label-light">Light</span>
+  </button>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="wrap">
+      <p class="kicker reveal">A learning guide</p>
+      <h1 class="reveal">The Anatomy of a Workflow Skill</h1>
+      <p class="lead reveal">How to turn a repeatable, multi-step process into an agentic workflow that stops for human review, hands work between phases on explicit contracts, and checks itself before it asks you to look.</p>
+      <p class="meta reveal">A companion to the <code>workflow-skill-creator</code> plugin. For developers and builders designing multi-step agents.</p>
+      <span class="scroll-cue reveal">
+        Scroll
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </span>
+    </div>
+  </header>
+
+  <!-- ============ 2. THE PROBLEM ============ -->
+  <section id="problem">
+    <div class="wrap">
+      <p class="kicker reveal">The problem</p>
+      <h2 class="reveal">A single prompt is the wrong shape for multi-step work</h2>
+      <p class="reveal">Hand an agent a five-step job in one prompt and it will usually do something reasonable and quietly wrong. The failure modes are predictable, and they repeat across tasks and models.</p>
+      <ul class="reveal">
+        <li>It skips steps it judges unimportant.</li>
+        <li>It fabricates the handoff between steps, inventing inputs the previous step never produced.</li>
+        <li>It loses early decisions as the context fills, and the problem gets worse the longer the task runs.</li>
+        <li>It satisfies a research step with two quick searches instead of the depth the work needs.</li>
+        <li>It revises forever, or it stops too early, with no agreed limit either way.</li>
+      </ul>
+      <p class="reveal">These are structure failures more than model failures. The fix is to give the work a shape. Distinct phases, explicit handoffs, and a human checkpoint between them. That shape is a workflow skill, and the rest of this guide is about what makes one hold up.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3. THE TEST ============ -->
+  <section id="test">
+    <div class="wrap">
+      <p class="kicker reveal">The test</p>
+      <h2 class="reveal">Not every task deserves a workflow</h2>
+      <p class="reveal">A workflow skill earns its complexity only when four things are true at once:</p>
+      <ul class="reveal">
+        <li>The job has three or more distinct phases that produce different artifacts.</li>
+        <li>A human needs to review the result between phases.</li>
+        <li>Each phase depends on the one before it.</li>
+        <li>The process repeats often enough to be worth encoding.</li>
+      </ul>
+      <p class="reveal">If a single skill or a single prompt would do, use that instead. The skill itself runs this check in its first phase and will tell you to simplify when a workflow is overkill. When all four hold, you have a real workflow, and the design choices below start to matter.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. ARCHITECTURE ============ -->
+  <section id="architecture">
+    <div class="wrap">
+      <p class="kicker reveal">Architecture</p>
+      <h2 class="reveal">A thin conductor, with the detail kept out of sight</h2>
+      <p class="reveal">A workflow skill splits into two layers. A thin orchestrator, the <code>SKILL.md</code> file, names the phases, the gates, and the rules. The detail for each phase lives in its own reference file, read only when that phase runs. This is progressive disclosure. The agent loads the map up front and the territory on demand.</p>
+      <p class="reveal">Keeping the orchestrator thin is what lets the agent hold the whole workflow in view at once, without any single phase's detail crowding out the others. The orchestrator never carries phase-level questions, research instructions, or output formats. Those belong in the phase file, where they load at the moment they are needed.</p>
+    </div>
+
+    <figure class="figure reveal" data-diagram="architecture">
+      <svg viewBox="0 0 760 330" role="img" aria-label="Diagram: an orchestrator SKILL.md fanning out to four phase reference files loaded on demand.">
+        <!-- orchestrator -->
+        <g class="d-node">
+          <rect class="d-box d-box--accent" x="255" y="24" width="250" height="64" rx="12"></rect>
+          <text class="d-title" x="380" y="52" text-anchor="middle">SKILL.md</text>
+          <text class="d-sub" x="380" y="73" text-anchor="middle">orchestrator · stays thin</text>
+        </g>
+        <!-- on-demand label -->
+        <text class="d-tag" x="380" y="184" text-anchor="middle">references/ · read one level deep, only when its phase runs</text>
+        <!-- flows -->
+        <path class="d-flow d-flow--accent" pathLength="1" d="M380 88 C 380 150, 102 160, 102 230"></path>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M380 88 C 380 150, 288 160, 288 230"></path>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M380 88 C 380 150, 474 160, 474 230"></path>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M380 88 C 380 150, 660 160, 660 230"></path>
+        <!-- arrowheads -->
+        <polygon class="d-node d-arrowhead--accent" points="96,222 108,222 102,232"></polygon>
+        <polygon class="d-node d-arrowhead--accent" points="282,222 294,222 288,232"></polygon>
+        <polygon class="d-node d-arrowhead--accent" points="468,222 480,222 474,232"></polygon>
+        <polygon class="d-node d-arrowhead--accent" points="654,222 666,222 660,232"></polygon>
+        <!-- phase files -->
+        <g class="d-node">
+          <rect class="d-box" x="24" y="232" width="156" height="72" rx="12"></rect>
+          <text class="d-title" x="102" y="263" text-anchor="middle">Scope</text>
+          <text class="d-sub" x="102" y="284" text-anchor="middle">phase-1-scope.md</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="210" y="232" width="156" height="72" rx="12"></rect>
+          <text class="d-title" x="288" y="263" text-anchor="middle">Architect</text>
+          <text class="d-sub" x="288" y="284" text-anchor="middle">phase-2-architect.md</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="396" y="232" width="156" height="72" rx="12"></rect>
+          <text class="d-title" x="474" y="263" text-anchor="middle">Build</text>
+          <text class="d-sub" x="474" y="284" text-anchor="middle">phase-3-build.md</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="582" y="232" width="156" height="72" rx="12"></rect>
+          <text class="d-title" x="660" y="263" text-anchor="middle">Validate</text>
+          <text class="d-sub" x="660" y="284" text-anchor="middle">phase-4-validate.md</text>
+        </g>
+      </svg>
+      <figcaption>The orchestrator names the phases. Each phase file is read one level deep, only when its phase runs.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 5. GATES ============ -->
+  <section id="gates">
+    <div class="wrap">
+      <p class="kicker reveal">Quality control · Gates</p>
+      <h2 class="reveal">The work stops and waits for you</h2>
+      <p class="reveal">A gate is a hard stop at the end of a phase. The agent presents what it produced, states what you should evaluate, and waits. It does not drift into the next phase while you are not looking. Every gate in a generated workflow carries the same four prohibitions:</p>
+      <ol class="reveal">
+        <li>Stop. Wait for explicit approval before any next action.</li>
+        <li>Do not read the next phase's reference file.</li>
+        <li>Do not begin work on the next phase.</li>
+        <li>Do not summarize what the next phase will do.</li>
+      </ol>
+      <p class="reveal">The language is deliberately absolute. Never skip a gate. A gate written as a suggestion is not a gate. Each gate also carries a focus, the specific thing you are meant to judge at that point. Source quality after research. Tone and structure after a draft. Brand compliance after formatting. A good gate tells you what to look at, not just that something is ready.</p>
+    </div>
+
+    <figure class="figure reveal" data-diagram="gate">
+      <svg viewBox="0 0 760 340" role="img" aria-label="Diagram: a phase flows into a gate; approval moves forward to the next phase, while refine or rework loops back.">
+        <!-- phase N -->
+        <g class="d-node">
+          <rect class="d-box" x="24" y="92" width="140" height="64" rx="12"></rect>
+          <text class="d-title" x="94" y="120" text-anchor="middle">Phase N</text>
+          <text class="d-sub" x="94" y="140" text-anchor="middle">does the work</text>
+        </g>
+        <!-- phase -> gate -->
+        <path class="d-flow" pathLength="1" d="M164 124 L286 124"></path>
+        <polygon class="d-node d-arrowhead" points="278,118 278,130 288,124"></polygon>
+        <!-- gate -->
+        <g class="d-node">
+          <rect class="d-box d-box--accent" x="288" y="84" width="164" height="80" rx="12"></rect>
+          <text class="d-title" x="370" y="118" text-anchor="middle">GATE</text>
+          <text class="d-sub" x="370" y="139" text-anchor="middle">you review &amp; decide</text>
+        </g>
+        <!-- approved -> next -->
+        <path class="d-flow d-flow--pass" pathLength="1" d="M452 116 C 520 100, 545 104, 600 104"></path>
+        <polygon class="d-node d-arrowhead--pass" points="592,98 592,110 602,104"></polygon>
+        <text class="d-tag" x="524" y="92" text-anchor="middle" style="fill:var(--pass)">approved</text>
+        <g class="d-node">
+          <rect class="d-box d-box--pass" x="600" y="76" width="136" height="56" rx="12"></rect>
+          <text class="d-title" x="668" y="108" text-anchor="middle">Phase N+1</text>
+        </g>
+        <!-- refine / rework -> back -->
+        <path class="d-flow d-flow--accent" pathLength="1" d="M360 164 C 320 250, 150 250, 94 158"></path>
+        <polygon class="d-node d-arrowhead--accent" points="88,168 100,168 94,158"></polygon>
+        <text class="d-tag" x="232" y="244" text-anchor="middle" style="fill:var(--accent)">refine or rework, back to Phase N</text>
+        <!-- prohibitions -->
+        <g class="d-node">
+          <rect class="d-box d-fill-soft" x="470" y="196" width="266" height="124" rx="12"></rect>
+          <text class="d-tag" x="486" y="220">AT EVERY GATE</text>
+          <text class="d-mono" x="486" y="244">1 · Stop. Wait for approval.</text>
+          <text class="d-mono" x="486" y="264">2 · Don't read the next phase file.</text>
+          <text class="d-mono" x="486" y="284">3 · Don't start the next phase.</text>
+          <text class="d-mono" x="486" y="304">4 · Don't preview the next phase.</text>
+        </g>
+      </svg>
+      <figcaption>A phase ends at a gate. Approval moves forward. Refine and rework loop back. Nothing advances without you.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 6. CONTRACTS ============ -->
+  <section id="contracts">
+    <div class="wrap">
+      <p class="kicker reveal">Quality control · Contracts</p>
+      <h2 class="reveal">Every handoff is a named contract</h2>
+      <p class="reveal">The weakest point in any multi-step process is the handoff. A workflow skill makes each handoff explicit with input and output contracts. A contract names the artifact, its format, and its internal structure. Not "research findings from phase 1" but "approved research brief, markdown, with Summary, Sources with URLs, Key Findings tagged FACT, PROJECTION, or OPINION, and Gaps."</p>
+      <p class="reveal">Then the chain gets verified. For every transition, the previous phase's output must produce every field the next phase's input expects, in a compatible format. If phase two emits markdown and phase three wants JSON, that is a gap, and it gets fixed before the workflow ships. Specific contracts are what let a later phase trust an earlier one without re-reading its work.</p>
+    </div>
+
+    <figure class="figure reveal" data-diagram="contracts">
+      <svg viewBox="0 0 760 250" role="img" aria-label="Diagram: three phases connected by contracts; one connection matches, one is flagged as a gap.">
+        <g class="d-node">
+          <rect class="d-box" x="24" y="80" width="180" height="80" rx="12"></rect>
+          <text class="d-title" x="114" y="112" text-anchor="middle">Research</text>
+          <text class="d-mono" x="114" y="134" text-anchor="middle">out: brief</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="290" y="80" width="180" height="80" rx="12"></rect>
+          <text class="d-title" x="380" y="112" text-anchor="middle">Synthesize</text>
+          <text class="d-mono" x="380" y="134" text-anchor="middle">in: brief · out: draft</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="556" y="80" width="180" height="80" rx="12"></rect>
+          <text class="d-title" x="646" y="112" text-anchor="middle">Produce</text>
+          <text class="d-mono" x="646" y="134" text-anchor="middle">in: draft</text>
+        </g>
+        <!-- match -->
+        <path class="d-flow d-flow--pass" pathLength="1" d="M204 120 L290 120"></path>
+        <polygon class="d-node d-arrowhead--pass" points="282,114 282,126 292,120"></polygon>
+        <text class="d-tag" x="247" y="64" text-anchor="middle" style="fill:var(--pass)">research brief · md</text>
+        <text class="d-tag" x="247" y="186" text-anchor="middle" style="fill:var(--pass)">MATCH</text>
+        <!-- gap -->
+        <path class="d-flow d-flow--stop" pathLength="1" d="M470 120 L556 120"></path>
+        <polygon class="d-node d-arrowhead--stop" points="548,114 548,126 558,120"></polygon>
+        <text class="d-tag" x="513" y="64" text-anchor="middle" style="fill:var(--stop)">md emitted · json expected</text>
+        <text class="d-tag" x="513" y="186" text-anchor="middle" style="fill:var(--stop)">GAP → fix the contract</text>
+      </svg>
+      <figcaption>Output contracts feed input contracts. The chain gets walked end to end. A mismatch is a gap to fix, not a thing to paper over.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 7. VALIDATION LOOPS ============ -->
+  <section id="validation">
+    <div class="wrap">
+      <p class="kicker reveal">Quality control · Validation</p>
+      <h2 class="reveal">A phase checks itself before it asks you</h2>
+      <p class="reveal">Before a phase presents at its gate, it validates its own output against a checklist, fixes what fails, and re-runs the whole checklist from the top. It keeps looping until every check passes. Only then does it reach the gate. This is the difference between a checklist you read once and a loop you run until it is green.</p>
+      <p class="reveal">Re-running from the top matters because a fix can introduce a new problem a one-pass check would miss. The same idea drives the build phase of the skill itself, which audits generated files for anti-patterns, fixes them, then re-verifies the contract chain from the start, because a fix to one phase's output can break the next phase's input.</p>
+    </div>
+
+    <figure class="figure reveal" data-diagram="loop">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Diagram: a check-and-fix loop iterates until all checks pass, then exits to the gate.">
+        <!-- guide ring -->
+        <circle cx="230" cy="150" r="80" fill="none" stroke="var(--rule)" stroke-width="1.5"></circle>
+        <!-- rotating iterate arc -->
+        <circle class="d-loop" cx="230" cy="150" r="92" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="5 11" stroke-linecap="round"></circle>
+        <!-- nodes -->
+        <g class="d-node">
+          <rect class="d-box" x="158" y="48" width="144" height="44" rx="10"></rect>
+          <text class="d-sub" x="230" y="75" text-anchor="middle" style="fill:var(--ink);font-weight:600">self-check</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="158" y="208" width="144" height="44" rx="10"></rect>
+          <text class="d-sub" x="230" y="235" text-anchor="middle" style="fill:var(--ink);font-weight:600">fix issues</text>
+        </g>
+        <text class="d-tag" x="230" y="155" text-anchor="middle" style="fill:var(--accent)">ITERATE</text>
+        <!-- exit -->
+        <path class="d-flow d-flow--pass" pathLength="1" d="M322 150 L520 150"></path>
+        <polygon class="d-node d-arrowhead--pass" points="512,144 512,156 522,150"></polygon>
+        <text class="d-tag" x="421" y="138" text-anchor="middle" style="fill:var(--pass)">all checks pass</text>
+        <g class="d-node">
+          <rect class="d-box d-box--pass" x="520" y="122" width="200" height="56" rx="12"></rect>
+          <path class="d-check" d="M548 150 l8 9 l16 -19" fill="none" stroke="var(--pass)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+          <text class="d-title" x="612" y="156" text-anchor="middle">Present at gate</text>
+        </g>
+      </svg>
+      <figcaption>Check, fix, re-check, until all pass. The gate comes after the loop closes, not during it.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 8. DEPTH CONTRACTS ============ -->
+  <section id="depth">
+    <div class="wrap">
+      <p class="kicker reveal">Quality control · Depth</p>
+      <h2 class="reveal">Research that cannot be satisfied with two searches</h2>
+      <p class="reveal">Left to its own judgment, an agent will declare a research task done after a couple of searches. An execution depth contract removes the judgment. It sets numeric floors. A minimum number of searches. A minimum number of full sources read rather than skimmed. A minimum number of unique sources cited. It tells the agent to start broad and narrow, to chase the most promising sources to full text, and to label every claim as fact, projection, or opinion.</p>
+      <div class="callout reveal">
+        <p class="kicker">The rule that matters most</p>
+        <p>State gaps explicitly. Never fill a gap with plausible-sounding content. A workflow that invents a number to look complete is worse than one that says it does not know.</p>
+      </div>
+      <p class="reveal">Depth is calibrated to how often the workflow runs. A daily report does not need fifteen searches per run. A one-time strategy document might. The skill matches depth and revision limits to frequency, and it will override a request for heavy research on a daily workflow when the token economics do not justify it.</p>
+    </div>
+  </section>
+
+  <!-- ============ 9. EXECUTION MODELS ============ -->
+  <section id="execution">
+    <div class="wrap">
+      <p class="kicker reveal">Execution</p>
+      <h2 class="reveal">Where each phase runs, and why context stays clean</h2>
+      <p class="reveal">Not every phase should run in the same place. A workflow skill chooses an execution model per phase. Light work runs in the main session. A research phase that needs many searches runs in an isolated subagent, so its raw results never crowd the orchestrator's context, returning only a structured brief. Work that needs several independent research streams cross-referenced runs as a team of agents.</p>
+      <p class="reveal">Two more levers. Model choice per phase, with a cheap, fast model for broad exploration and a stronger model for synthesis and architecture. And portability, where subagents and forked context are enhancements on platforms that support them, with a sequential fallback so the same workflow still runs where they do not. Keeping the orchestrator's context lean is what lets a long workflow survive without losing its earliest decisions.</p>
+    </div>
+
+    <figure class="figure reveal" data-diagram="execution">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Diagram: three execution models. A single session, a forked subagent returning a brief, and a parallel agent team that merges.">
+        <!-- col 1: single session -->
+        <text class="d-tag" x="130" y="36" text-anchor="middle">SINGLE SESSION</text>
+        <g class="d-node">
+          <rect class="d-box" x="60" y="120" width="140" height="64" rx="12"></rect>
+          <text class="d-title" x="130" y="148" text-anchor="middle">phase</text>
+          <text class="d-sub" x="130" y="168" text-anchor="middle">main context</text>
+        </g>
+        <!-- col 2: subagent / context: fork -->
+        <text class="d-tag" x="380" y="36" text-anchor="middle">SUBAGENT · context: fork</text>
+        <g class="d-node">
+          <rect class="d-box d-box--accent" x="320" y="64" width="120" height="48" rx="10"></rect>
+          <text class="d-sub" x="380" y="93" text-anchor="middle" style="fill:var(--ink);font-weight:600">orchestrator</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="320" y="196" width="120" height="48" rx="10"></rect>
+          <text class="d-sub" x="380" y="219" text-anchor="middle" style="fill:var(--ink);font-weight:600">research</text>
+          <text class="d-tag" x="380" y="235" text-anchor="middle">isolated</text>
+        </g>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M366 112 L366 196"></path>
+        <polygon class="d-node d-arrowhead--accent" points="360,188 372,188 366,198"></polygon>
+        <path class="d-flow d-flow--pass" pathLength="1" d="M408 196 C 462 170, 462 138, 408 112"></path>
+        <polygon class="d-node d-arrowhead--pass" points="402,122 414,122 408,110"></polygon>
+        <text class="d-tag" x="470" y="158" style="fill:var(--pass)">brief</text>
+        <!-- col 3: agent team -->
+        <text class="d-tag" x="630" y="36" text-anchor="middle">AGENT TEAM · parallel</text>
+        <g class="d-node">
+          <rect class="d-box d-box--accent" x="570" y="60" width="120" height="44" rx="10"></rect>
+          <text class="d-sub" x="630" y="87" text-anchor="middle" style="fill:var(--ink);font-weight:600">orchestrator</text>
+        </g>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M630 104 L560 150"></path>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M630 104 L632 150"></path>
+        <path class="d-flow d-flow--accent" pathLength="1" d="M630 104 L704 150"></path>
+        <g class="d-node">
+          <rect class="d-box" x="530" y="150" width="60" height="40" rx="9"></rect>
+          <text class="d-sub" x="560" y="175" text-anchor="middle">A</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="602" y="150" width="60" height="40" rx="9"></rect>
+          <text class="d-sub" x="632" y="175" text-anchor="middle">B</text>
+        </g>
+        <g class="d-node">
+          <rect class="d-box" x="674" y="150" width="60" height="40" rx="9"></rect>
+          <text class="d-sub" x="704" y="175" text-anchor="middle">C</text>
+        </g>
+        <path class="d-flow d-flow--pass" pathLength="1" d="M560 190 L628 232"></path>
+        <path class="d-flow d-flow--pass" pathLength="1" d="M632 190 L632 232"></path>
+        <path class="d-flow d-flow--pass" pathLength="1" d="M704 190 L636 232"></path>
+        <g class="d-node">
+          <rect class="d-box d-box--pass" x="572" y="232" width="120" height="40" rx="10"></rect>
+          <text class="d-sub" x="632" y="257" text-anchor="middle" style="fill:var(--ink);font-weight:600">merge</text>
+        </g>
+      </svg>
+      <figcaption>Single session for light work. An isolated subagent for deep research that returns a brief. A team for parallel streams that get merged.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 10. ANTI-PATTERNS ============ -->
+  <section id="antipatterns">
+    <div class="wrap">
+      <p class="kicker reveal">What goes wrong</p>
+      <h2 class="reveal">The failure modes a good workflow designs out</h2>
+      <p class="reveal">Most broken workflows fail in the same handful of ways. The skill audits for each one and fixes it before delivery. Knowing the smells makes you a better reviewer of your own designs.</p>
+      <div class="cards reveal">
+        <div class="card">
+          <h4>Mega-skill <span class="smell">smell</span></h4>
+          <p>One giant SKILL.md holding every question, format, and instruction.</p>
+          <p class="fix"><b>Fix:</b> move detail into phase files and keep the orchestrator thin.</p>
+        </div>
+        <div class="card">
+          <h4>Implicit handoff <span class="smell">smell</span></h4>
+          <p>A phase ends and the next begins with no gate in between.</p>
+          <p class="fix"><b>Fix:</b> every phase ends with a hard stop and the four prohibitions.</p>
+        </div>
+        <div class="card">
+          <h4>Optional gate <span class="smell">smell</span></h4>
+          <p>"Review this if you'd like." A gate phrased as a suggestion.</p>
+          <p class="fix"><b>Fix:</b> gates use mandatory language only.</p>
+        </div>
+        <div class="card">
+          <h4>Context amnesia <span class="smell">smell</span></h4>
+          <p>By the last phase, the early decisions are gone.</p>
+          <p class="fix"><b>Fix:</b> a workflow-state block that carries decisions and the reasoning behind them.</p>
+        </div>
+        <div class="card">
+          <h4>Unbounded loop <span class="smell">smell</span></h4>
+          <p>"Refine until it's good." No limit on revisions.</p>
+          <p class="fix"><b>Fix:</b> a specific revision count per phase.</p>
+        </div>
+        <div class="card">
+          <h4>Assumed input <span class="smell">smell</span></h4>
+          <p>A phase describes what its input "should" contain.</p>
+          <p class="fix"><b>Fix:</b> name the actual prior artifact, its format, and its structure.</p>
+        </div>
+        <div class="card">
+          <h4>Trigger collision <span class="smell">smell</span></h4>
+          <p>A trigger phrase that also matches a common, unrelated skill.</p>
+          <p class="fix"><b>Fix:</b> make the phrases specific to this workflow.</p>
+        </div>
+        <div class="card">
+          <h4>Shallow research <span class="smell">smell</span></h4>
+          <p>A depth contract that says eight searches over a process that describes three.</p>
+          <p class="fix"><b>Fix:</b> enough discrete search steps to meet the floor.</p>
+        </div>
+        <div class="card">
+          <h4>Prose question <span class="smell">smell</span></h4>
+          <p>Open prompts where the answers are predictable.</p>
+          <p class="fix"><b>Fix:</b> structured options with an escape hatch.</p>
+        </div>
+        <div class="card">
+          <h4>Platform-blind <span class="smell">smell</span></h4>
+          <p>Forked context or hooks with no fallback for platforms that lack them.</p>
+          <p class="fix"><b>Fix:</b> a sequential path that runs everywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 11. CONTEXT ROT ============ -->
+  <section id="state">
+    <div class="wrap">
+      <p class="kicker reveal">State</p>
+      <h2 class="reveal">A workflow that can be picked back up</h2>
+      <p class="reveal">A long workflow will outlive the context window that started it. So each gate produces a compact state block: which phase completed, the key decisions, the artifacts produced, the open questions, and the next phase. The field that matters most is decision rationale, the why behind each choice.</p>
+      <p class="reveal">A summary can compress what was decided. Only the rationale lets a later phase, or a resumed session, understand whether a decision still holds. Resumption is built in. Read the most recent state block, confirm it with the user, continue from the next phase, and do not re-read the phases already done. The state block is the workflow's memory, written to survive being summarized.</p>
+    </div>
+  </section>
+
+  <!-- ============ 12. LINEAGE ============ -->
+  <section id="lineage">
+    <div class="wrap wrap--wide">
+      <p class="kicker reveal">Lineage</p>
+      <h2 class="reveal">Standing on three bodies of work</h2>
+      <p class="reveal">None of this was invented from scratch. The skill draws its mechanics, its discipline, and its shape from three sources worth reading directly.</p>
+      <div class="lineage reveal">
+        <div class="source">
+          <h3>Agent Skills</h3>
+          <p class="by">the open standard · agentskills.io</p>
+          <ul>
+            <li>Frontmatter constraints and the description as the trigger.</li>
+            <li>Progressive disclosure across discovery, activation, and execution.</li>
+            <li>Validation loops: do the work, validate, fix, repeat.</li>
+            <li>Defaults over menus. Gotchas over generalities.</li>
+          </ul>
+          <p class="links">
+            <a href="https://agentskills.io/specification" target="_blank" rel="noopener">Specification</a>
+            <a href="https://agentskills.io/skill-creation/best-practices" target="_blank" rel="noopener">Best practices</a>
+          </p>
+        </div>
+        <div class="source">
+          <h3>superpowers</h3>
+          <p class="by">by obra · Jesse Vincent</p>
+          <ul>
+            <li>Systematic process beats ad-hoc guessing.</li>
+            <li>Skills are mandatory, not optional, when they apply.</li>
+            <li>Verify before declaring success.</li>
+            <li>Subagent-driven work, and a list of rationalizations to resist.</li>
+          </ul>
+          <p class="links">
+            <a href="https://github.com/obra/superpowers" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://blog.fsck.com/2025/10/09/superpowers/" target="_blank" rel="noopener">Launch post</a>
+          </p>
+        </div>
+        <div class="source">
+          <h3>Compound engineering</h3>
+          <p class="by">by Every · Kieran Klaassen, Dan Shipper</p>
+          <ul>
+            <li>A loop of plan, work, review, and compound.</li>
+            <li>Most effort goes into planning and review, not execution.</li>
+            <li>Humans plan and review while agents execute.</li>
+            <li>Learnings get captured as durable artifacts for the next run.</li>
+          </ul>
+          <p class="links">
+            <a href="https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents" target="_blank" rel="noopener">How Every codes</a>
+            <a href="https://every.to/source-code/compound-engineering-the-definitive-guide" target="_blank" rel="noopener">Definitive guide</a>
+          </p>
+        </div>
+      </div>
+      <p class="note reveal" style="margin-top:1.6rem">Each idea in this guide maps back to one of these. Gates and validation loops come from the standard and from superpowers' "verify before success." The plan-heavy, review-gated shape is compound engineering. The mandatory, no-skipping language is superpowers.</p>
+    </div>
+  </section>
+
+  <!-- ============ 13. BIGGER PICTURE ============ -->
+  <section id="principles">
+    <div class="wrap wrap--wide">
+      <p class="kicker reveal">The principle</p>
+      <h2 class="reveal">What this teaches about building agents</h2>
+      <p class="reveal">Strip away the specifics and a workflow skill is a set of bets about how to get reliable work from a capable but inconsistent agent. The bets generalize past this one skill.</p>
+      <div class="principles reveal">
+        <div class="principle">
+          <span class="n">01</span>
+          <h4>Front-load planning</h4>
+          <p>The cheapest place to fix a mistake is before any work is done. Spend the effort on scope and design.</p>
+        </div>
+        <div class="principle">
+          <span class="n">02</span>
+          <h4>Gate autonomy with review</h4>
+          <p>Let the agent run, but put a human checkpoint wherever being wrong is expensive to undo.</p>
+        </div>
+        <div class="principle">
+          <span class="n">03</span>
+          <h4>Make handoffs contracts</h4>
+          <p>Name what moves between steps, its format, and its structure. Vagueness is where multi-step work breaks.</p>
+        </div>
+        <div class="principle">
+          <span class="n">04</span>
+          <h4>Bound every loop</h4>
+          <p>Revision, research, retries. A loop without a limit is a way to burn time or to stop too soon.</p>
+        </div>
+        <div class="principle">
+          <span class="n">05</span>
+          <h4>Verify before declaring done</h4>
+          <p>A self-check that runs until it passes beats a confident claim of success.</p>
+        </div>
+        <div class="principle">
+          <span class="n">06</span>
+          <h4>Capture decisions so the system compounds</h4>
+          <p>Write down the why. The next run, and the next person, inherit it instead of relearning it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 14. FOOTER / USE IT ============ -->
+  <section id="use" class="site-footer">
+    <div class="wrap">
+      <p class="kicker reveal">Use it</p>
+      <h2 class="reveal">Build one</h2>
+      <p class="reveal">The <code>workflow-skill-creator</code> skill runs this whole method as a four-phase, gated workflow: scope, architect, build, validate. It interviews you, designs the contracts and gates, generates the files, and validates them against the standard.</p>
+      <pre class="install reveal"><code>/plugin marketplace add deremer/workflow-skills
+/plugin install workflow-skill-creator@workflow-skills
+
+/workflow-skill-creator</code></pre>
+      <p class="links reveal">
+        <a href="https://agentskills.io/specification" target="_blank" rel="noopener">Agent Skills standard</a>
+        <a href="https://github.com/obra/superpowers" target="_blank" rel="noopener">superpowers</a>
+        <a href="https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents" target="_blank" rel="noopener">Compound engineering</a>
+        <a href="https://github.com/deremer/workflow-skills" target="_blank" rel="noopener">Repository</a>
+      </p>
+      <p class="colophon reveal">A learning companion to the workflow-skill-creator plugin. No tracking. No dependencies.</p>
+    </div>
+  </section>
+
+  <script src="./main.js"></script>
+</body>
+</html>
