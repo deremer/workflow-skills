@@ -9,14 +9,24 @@ multi-step agents.
 It also traces the design lineage to three sources: the Agent Skills open standard
 (agentskills.io), obra's **superpowers**, and Every's **compound engineering**.
 
+## Read it
+
+- **Live site:** [deremer.github.io/workflow-skills/learning-site/](https://deremer.github.io/workflow-skills/learning-site/)
+- **One-page handout (PDF):** [`handout.pdf`](./handout.pdf) — printable Letter-size summary of the method, ideal for a meeting or wall pin.
+- **Full Workflow Skills Guide (PDF):** [`VGV_Workflow_Skills_Guide.pdf`](./VGV_Workflow_Skills_Guide.pdf) — in-depth reference covering the full method end to end.
+
 ## What's here
 
 ```
 learning-site/
-├── index.html    # the full editorial scroll story + inline SVG diagrams
-├── styles.css    # editorial layout, light/dark themes, reduced-motion handling
-├── main.js       # scroll reveals, diagram animation triggers, scroll progress, theme toggle
-└── README.md     # this file
+├── index.html                          # the full editorial scroll story + inline SVG diagrams
+├── styles.css                          # editorial layout, light/dark themes, reduced-motion handling
+├── main.js                             # scroll reveals, diagram animation triggers, scroll progress, theme toggle
+├── handout.html                        # printable one-page handout (source for handout.pdf)
+├── handout.pdf                         # one-page Letter handout
+├── VGV_Workflow_Skills_Guide.pdf       # full in-depth guide
+├── vgv-lockup.svg                      # VGV lockup used in the handout
+└── README.md                           # this file
 ```
 
 No build step, no dependencies, no tracking. Plain HTML, CSS, and JavaScript using inline
