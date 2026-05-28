@@ -30,6 +30,12 @@ Invoke it directly:
 
 Or describe the work in natural language. The skill activates on phrases like "create a workflow skill", "build a multi-phase skill", "turn this process into a workflow", or any description of a 3+ step process that needs review between steps.
 
+## Learn more
+
+- **Learning site:** [deremer.github.io/workflow-skills/learning-site/](https://deremer.github.io/workflow-skills/learning-site/) — the full editorial guide covering gates, contracts, validation loops, and the design lineage.
+- **One-page handout (PDF):** [`learning-site/handout.pdf`](./learning-site/handout.pdf) — printable Letter-size summary, ideal for a meeting or wall pin.
+- **Full Workflow Skills Guide (PDF):** [`learning-site/VGV_Workflow_Skills_Guide.pdf`](./learning-site/VGV_Workflow_Skills_Guide.pdf) — in-depth reference covering the method end to end.
+
 ## Layout
 
 ```
