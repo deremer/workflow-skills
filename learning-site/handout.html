@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Workflow Skill Creator — Handout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: Letter; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* VGV core palette */
+    --vgv-blue: #2A48DE;
+    --vgv-navy: #0A1530;
+    --vgv-black: #232326;
+    --vgv-white: #FFFFFF;
+
+    /* Web-context additions */
+    --surface-light: #FAFBFF;
+    --pale-blue: #F3F6FF;
+    --light-blue: #CDDAFB;
+    --sky-blue: #9DB6F8;
+    --gray: #D2D5DD;
+    --gray-deep: #838998;
+    --eigengrau: #16161D;
+
+    /* Tints */
+    --blue-20: #D5DDF8;
+    --blue-40: #AABBF2;
+  }
+
+  html, body {
+    font-family: "Poppins", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--vgv-black);
+    background: var(--vgv-white);
+    font-weight: 400;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- header ---------- */
+  .head {
+    background: linear-gradient(135deg, var(--vgv-navy) 0%, var(--vgv-blue) 100%);
+    color: var(--vgv-white);
+    padding: 0.48in 0.62in 0.4in;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 22px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .head::after {
+    content: "";
+    position: absolute;
+    right: -60px;
+    bottom: -80px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+  .kicker {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.06;
+    letter-spacing: -0.015em;
+    margin: 7px 0 9px;
+    color: var(--vgv-white);
+  }
+  .tagline {
+    font-size: 11.5px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.86);
+    max-width: 5.4in;
+    line-height: 1.5;
+  }
+  .badge {
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+  .badge .lockup {
+    display: block;
+    width: 110px;
+    margin-left: auto;
+    margin-bottom: 12px;
+  }
+  .badge .cmd {
+    display: inline-block;
+    font-family: "Poppins", monospace;
+    background: var(--vgv-white);
+    color: var(--vgv-blue);
+    font-size: 9px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .badge .meta {
+    margin-top: 8px;
+    font-weight: 400;
+  }
+
+  /* ---------- body layout ---------- */
+  .body {
+    flex: 1;
+    min-height: 0;
+    padding: 18px 0.62in 0.34in;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cols {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+  }
+  .col-main { flex: 1.42; }
+  .col-side { flex: 1; }
+
+  section { margin-bottom: 15px; }
+  h2 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--vgv-blue);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  h2::after {
+    content: "";
+    flex: 1;
+    height: 1.5px;
+    background: var(--blue-20);
+  }
+  p {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--vgv-black);
+    font-weight: 400;
+  }
+  p + p { margin-top: 6px; }
+
+  /* phase strip */
+  .phases {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .phase {
+    flex: 1;
+    background: var(--pale-blue);
+    border: 1px solid var(--light-blue);
+    border-radius: 8px;
+    padding: 10px 9px 11px;
+    position: relative;
+  }
+  .phase .n {
+    font-family: "Poppins", sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--vgv-blue);
+    letter-spacing: 0.06em;
+  }
+  .phase .t {
+    font-family: "Poppins", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--vgv-navy);
+    margin: 3px 0 4px;
+  }
+  .phase .d {
+    font-size: 9px;
+    color: var(--gray-deep);
+    line-height: 1.4;
+    font-weight: 400;
+  }
+  .gatebar {
+    margin-top: 12px;
+    font-size: 10px;
+    color: var(--vgv-black);
+    background: var(--vgv-blue);
+    color: var(--vgv-white);
+    border-radius: 6px;
+    padding: 9px 12px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .gatebar b { font-weight: 700; }
+
+  /* examples */
+  .ex { margin-top: 4px; }
+  .ex-item {
+    display: flex;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--gray);
+  }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-num {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--vgv-blue);
+    color: var(--vgv-white);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Poppins", sans-serif;
+  }
+  .ex-item .et {
+    font-family: "Poppins", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--vgv-navy);
+  }
+  .ex-item .ed {
+    font-size: 10px;
+    color: var(--gray-deep);
+    line-height: 1.45;
+    margin-top: 3px;
+    font-weight: 400;
+  }
+
+  /* install */
+  pre {
+    background: var(--vgv-navy);
+    color: var(--vgv-white);
+    font-family: "Poppins", ui-monospace, Menlo, monospace;
+    font-size: 10px;
+    line-height: 1.8;
+    padding: 13px 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    white-space: pre-wrap;
+    font-weight: 400;
+  }
+  pre .c { color: var(--sky-blue); }
+  pre .p { color: var(--vgv-white); font-weight: 600; }
+
+  /* takeaways */
+  ul.take { list-style: none; }
+  ul.take li {
+    font-size: 11px;
+    line-height: 1.45;
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  ul.take li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 6px;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--vgv-blue);
+  }
+  ul.take li b {
+    color: var(--vgv-navy);
+    font-weight: 700;
+  }
+  ul.take li span { color: var(--gray-deep); }
+
+  /* when to use box */
+  .usebox {
+    background: var(--pale-blue);
+    border: 1px solid var(--light-blue);
+    border-left: 4px solid var(--vgv-blue);
+    border-radius: 8px;
+    padding: 13px 15px;
+  }
+  .usebox p {
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--gray-deep);
+    font-weight: 400;
+  }
+  .usebox .test {
+    font-size: 10.5px;
+    margin-top: 7px;
+    color: var(--vgv-navy);
+    font-weight: 500;
+  }
+  .usebox .test b {
+    color: var(--vgv-blue);
+    font-weight: 700;
+  }
+
+  /* footer */
+  .foot {
+    margin-top: auto;
+    border-top: 1.5px solid var(--blue-20);
+    padding-top: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .foot .more { font-size: 11px; }
+  .foot .more .lk {
+    color: var(--vgv-blue);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .foot .more .lab {
+    font-family: "Poppins", sans-serif;
+    font-size: 8.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gray-deep);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .foot .right {
+    font-size: 9px;
+    color: var(--gray-deep);
+    text-align: right;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .foot .right b {
+    color: var(--vgv-navy);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div>
+      <div class="kicker">Claude Code Plugin · Agent Skills standard</div>
+      <h1>Workflow Skill Creator</h1>
+      <div class="tagline">Turn a repeatable, multi-step process into a structured agent workflow that stops for human review, hands work between phases on explicit contracts, and checks itself before it asks you to look.</div>
+    </div>
+    <div class="badge">
+      <img class="lockup" src="vgv-lockup.svg" alt="Very Good Ventures" />
+      <span class="cmd">/workflow-skill-creator</span>
+      <div class="meta">MIT · v0.1.0<br/>Claude Code + Claude.ai</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="cols">
+      <!-- ===== MAIN COLUMN ===== -->
+      <div class="col-main">
+
+        <section>
+          <h2>What it is</h2>
+          <p>A meta-skill that builds other skills. It runs a four-phase, human-gated pipeline that interviews you about your process, designs the architecture, generates every file, and validates the result against the open standard. The work stops at a gate between each phase and waits for your explicit approval before moving on, so you stay in control as the design takes shape.</p>
+          <div class="phases">
+            <div class="phase"><div class="n">01</div><div class="t">Scope</div><div class="d">Interview for intent, phases, platforms, constraints.</div></div>
+            <div class="phase"><div class="n">02</div><div class="t">Architect</div><div class="d">Design state contracts, gates, execution models.</div></div>
+            <div class="phase"><div class="n">03</div><div class="t">Build</div><div class="d">Generate the orchestrator and all phase files.</div></div>
+            <div class="phase"><div class="n">04</div><div class="t">Validate</div><div class="d">Run the checklist, test, package for delivery.</div></div>
+          </div>
+          <div class="gatebar"><b>Gate between every phase.</b> Never skipped, never optional. The skill presents what it built, names what you should judge, and waits.</div>
+        </section>
+
+        <section>
+          <h2>What you can build with it — 3 ideas</h2>
+          <div class="ex">
+            <div class="ex-item">
+              <div class="ex-num">1</div>
+              <div>
+                <div class="et">Market research → brief</div>
+                <div class="ed">Research with a depth floor, synthesize findings tagged fact / projection / opinion, then format. Review sources before any draft.</div>
+              </div>
+            </div>
+            <div class="ex-item">
+              <div class="ex-num">2</div>
+              <div>
+                <div class="et">Blog post production line</div>
+                <div class="ed">Outline, draft, edit for tone, then brand-check. A gate after each so you approve structure before prose, prose before publish.</div>
+              </div>
+            </div>
+            <div class="ex-item">
+              <div class="ex-num">3</div>
+              <div>
+                <div class="et">Chief of staff morning brief</div>
+                <div class="ed">Scan inbox and calendar, surface what needs your call, ask about priorities, then hand back a brief and a ranked daily to-do.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Install &amp; run</h2>
+          <pre><span class="c"># add the marketplace, then install the plugin</span>
+/plugin marketplace add deremer/workflow-skills
+/plugin install workflow-skill-creator@workflow-skills
+
+<span class="c"># run it, or just describe a 3+ step process</span>
+<span class="p">/workflow-skill-creator</span></pre>
+        </section>
+
+      </div>
+
+      <!-- ===== SIDE COLUMN ===== -->
+      <div class="col-side">
+
+        <section>
+          <h2>When it earns its keep</h2>
+          <div class="usebox">
+            <p>Use a workflow only when all four hold at once:</p>
+            <div class="test"><b>3+</b> distinct phases producing different artifacts</div>
+            <div class="test"><b>·</b> a human needs to review between phases</div>
+            <div class="test"><b>·</b> each phase depends on the one before</div>
+            <div class="test"><b>·</b> the process repeats often enough to encode</div>
+            <p style="margin-top:8px">If a single prompt would do, the skill tells you to use that instead.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2>Key takeaways</h2>
+          <ul class="take">
+            <li><b>Front-load planning.</b> <span>The cheapest place to fix a mistake is before any work starts.</span></li>
+            <li><b>Gate autonomy with review.</b> <span>A human checkpoint wherever being wrong is costly to undo.</span></li>
+            <li><b>Make handoffs contracts.</b> <span>Name the artifact, its format, and its structure — not "the output from before."</span></li>
+            <li><b>Bound every loop.</b> <span>A set revision and research limit beats "refine until it's good."</span></li>
+            <li><b>Verify before done.</b> <span>A self-check that runs until green beats a confident claim.</span></li>
+            <li><b>Capture the why.</b> <span>State blocks carry decisions so a resumed run inherits them.</span></li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="more">
+        <span class="lab">Learn more — the full guide</span>
+        <a class="lk" href="https://deremer.github.io/workflow-skills/learning-site/">deremer.github.io/workflow-skills/learning-site</a>
+      </div>
+      <div class="right">
+        <b>The Anatomy of a Workflow Skill</b><br/>
+        Gates · contracts · validation loops · depth contracts<br/>
+        github.com/deremer/workflow-skills
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
